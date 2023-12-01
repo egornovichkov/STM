@@ -24,7 +24,7 @@
 #define DUMMY_BYTE          ((uint8_t)0x00)
 #define READWRITE_CMD       ((uint8_t)0x80)
 #define MULTIPLEBYTE_CMD    ((uint8_t)0x40)
-#define SPIx_TIMEOUT_MAX                      ((uint32_t)0x1000)
+#define SPIx_TIMEOUT_MAX    ((uint32_t)0x1000)
 #define L3GD20_WHO_AM_I_ADDR  ((uint8_t)0x0F)
 #define L3GD20_OUT_X_L_ADDR   ((uint8_t)0x28)
 #define L3GD20_CTRL_REG1 	  ((uint8_t)0x20)
@@ -76,8 +76,6 @@ static uint8_t SPIx_WriteRead(uint8_t Byte)
 
 	uint8_t receivedbyte = 0;
 
-	/* Send a Byte through the SPI peripheral */
-	/* Read byte from the SPI bus */
 	HAL_SPI_TransmitReceive(&hspi2, (uint8_t*) &Byte, (uint8_t*) &receivedbyte,
 			1, SPIx_TIMEOUT_MAX);
 
@@ -86,21 +84,14 @@ static uint8_t SPIx_WriteRead(uint8_t Byte)
 
 void GYRO_IO_Write(uint8_t *pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite)
 {
-	/* Configure the MS bit:
-	 - When 0, the address will remain unchanged in multiple read/write commands.
-	 - When 1, the address will be auto incremented in multiple read/write commands.
-	 */
 	if (NumByteToWrite > 0x01)
 	{
 		WriteAddr |= (uint8_t) MULTIPLEBYTE_CMD;
 	}
-	/* Set chip select Low at the start of the transmission */
 	GYRO_CS_LOW();
 
-	/* Send the Address of the indexed register */
 	SPIx_WriteRead(WriteAddr);
 
-	/* Send the data that will be written into the device (MSB First) */
 	while (NumByteToWrite >= 0x01)
 	{
 		SPIx_WriteRead(*pBuffer);
@@ -108,7 +99,6 @@ void GYRO_IO_Write(uint8_t *pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite)
 		pBuffer++;
 	}
 
-	/* Set chip select High at the end of the transmission */
 	GYRO_CS_HIGH();
 }
 
@@ -122,22 +112,17 @@ void GYRO_IO_Read(uint8_t *pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead)
 	{
 		ReadAddr |= (uint8_t) READWRITE_CMD;
 	}
-	/* Set chip select Low at the start of the transmission */
 	GYRO_CS_LOW();
 
-	/* Send the Address of the indexed register */
 	SPIx_WriteRead(ReadAddr);
 
-	/* Receive the data that will be read from the device (MSB First) */
 	while (NumByteToRead > 0x00)
 	{
-		/* Send dummy byte (0x00) to generate the SPI clock to GYROSCOPE (Slave device) */
 		*pBuffer = SPIx_WriteRead(DUMMY_BYTE);
 		NumByteToRead--;
 		pBuffer++;
 	}
 
-	/* Set chip select High at the end of the transmission */
 	GYRO_CS_HIGH();
 }
 
@@ -216,7 +201,7 @@ int main(void)
 		GYRO_ReadXYZ_AngRate(Data_AngRate);
 		for (int i = 0; i < 3; ++i)
 		{
-			Data_Ang[i] = Data_AngRate[i] * 0.02;
+			Data_Ang[i] += Data_AngRate[i] * 0.02;
 		}
 		HAL_Delay(20);
 		/* USER CODE BEGIN 3 */
