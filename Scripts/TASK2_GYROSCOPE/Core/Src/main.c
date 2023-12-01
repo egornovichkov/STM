@@ -138,8 +138,8 @@ void GYRO_ReadXYZ_AngRate(float *Data)
 
 	for (int i = 0; i < 3; i++)
 	{
-		RawData[i] = (int16_t) (((uint16_t) tmpbuffer[2 * i] << 8)
-				+ tmpbuffer[2 * i + 1]);
+		RawData[i] = (int16_t) (((uint16_t) tmpbuffer[2 * i + 1] << 8)
+				+ tmpbuffer[2 * i]);
 	}
 
 	for (int i = 0; i < 3; i++)
@@ -191,8 +191,10 @@ int main(void)
 
 	GYRO_IO_Read(&data, address_whoami, 1);
 
-	float Data_AngRate[3] = {0};
-	float Data_Ang[3] = {0};
+	float Data_AngRate[3] =
+	{ 0 };
+	float Data_Ang[3] =
+	{ 0 };
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	while (1)
