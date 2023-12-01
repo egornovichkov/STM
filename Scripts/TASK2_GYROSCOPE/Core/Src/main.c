@@ -18,7 +18,8 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
+#include <stdlib.h>
+#include <math.h>
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #define DUMMY_BYTE          ((uint8_t)0x00)
@@ -28,6 +29,7 @@
 #define L3GD20_WHO_AM_I_ADDR  ((uint8_t)0x0F)
 #define L3GD20_OUT_X_L_ADDR   ((uint8_t)0x28)
 #define L3GD20_CTRL_REG1 	  ((uint8_t)0x20)
+#define L3GD20_CTRL_REG4	  ((uint8_t)0x23)
 
 #define GYRO_CS_LOW()       HAL_GPIO_WritePin(GPIOC, GYROSCOPE_CS_Pin, GPIO_PIN_RESET)
 #define GYRO_CS_HIGH()      HAL_GPIO_WritePin(GPIOC, GYROSCOPE_CS_Pin, GPIO_PIN_SET)
@@ -49,7 +51,10 @@
 
 /* Private variables ---------------------------------------------------------*/
 SPI_HandleTypeDef hspi2;
-
+float Data_AngRate[3] =
+{ 0 };
+float Data_Ang[3] =
+{ 0 };
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -128,7 +133,7 @@ void GYRO_IO_Read(uint8_t *pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead)
 
 void GYRO_ReadXYZ_AngRate(float *Data)
 {
-	float sensitivity = 0.00875;
+	float sensitivity = 0.07;
 	uint8_t tmpbuffer[6] =
 	{ 0 };
 	int16_t RawData[3] =
@@ -145,7 +150,10 @@ void GYRO_ReadXYZ_AngRate(float *Data)
 	for (int i = 0; i < 3; i++)
 	{
 		Data[i] = (float) (RawData[i] * sensitivity);
+		if (abs(Data[i]) < 0.0001)
+			Data[i] = 0;
 	}
+
 }
 
 /* USER CODE END 0 */
@@ -181,9 +189,11 @@ int main(void)
 	MX_SPI2_Init();
 	/* USER CODE BEGIN 2 */
 
-	// Включаем оси
+	// Включаем оси и настраиваем чувствительность 2000dps
 	uint8_t ctrl = 0x0f;
 	GYRO_IO_Write(&ctrl, L3GD20_CTRL_REG1, 1);
+	ctrl = 0x30;
+	GYRO_IO_Write(&ctrl, L3GD20_CTRL_REG4, 1);
 
 	/* USER CODE END 2 */
 	uint8_t address_whoami = 0x0F;
@@ -191,10 +201,6 @@ int main(void)
 
 	GYRO_IO_Read(&data, address_whoami, 1);
 
-	float Data_AngRate[3] =
-	{ 0 };
-	float Data_Ang[3] =
-	{ 0 };
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	while (1)
@@ -203,9 +209,10 @@ int main(void)
 		GYRO_ReadXYZ_AngRate(Data_AngRate);
 		for (int i = 0; i < 3; ++i)
 		{
-			Data_Ang[i] += Data_AngRate[i] * 0.02;
+			Data_Ang[i] += Data_AngRate[i] * 0.05;
+			Data_Ang[i] = fmodf(Data_Ang[i], 360.0);
 		}
-		HAL_Delay(20);
+		HAL_Delay(50);
 		/* USER CODE BEGIN 3 */
 	}
 	/* USER CODE END 3 */
