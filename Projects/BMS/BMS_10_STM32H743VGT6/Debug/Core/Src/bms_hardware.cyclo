@@ -1,0 +1,7 @@
+../Core/Src/bms_hardware.c:51:6:cs_low	1
+../Core/Src/bms_hardware.c:56:6:cs_high	1
+../Core/Src/bms_hardware.c:61:6:delay_u	3
+../Core/Src/bms_hardware.c:72:6:delay_m	1
+../Core/Src/bms_hardware.c:80:6:spi_write_array	2
+../Core/Src/bms_hardware.c:95:6:spi_write_read	3
+../Core/Src/bms_hardware.c:116:9:spi_read_byte	1

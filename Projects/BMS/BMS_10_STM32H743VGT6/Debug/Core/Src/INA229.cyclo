@@ -1,0 +1,9 @@
+../Core/Src/INA229.c:9:6:INA229_Init	1
+../Core/Src/INA229.c:75:10:INA229_Read_VBUS	1
+../Core/Src/INA229.c:92:9:INA229_Read_VSHUNT	4
+../Core/Src/INA229.c:132:10:INA229_Read_DIETEMP	1
+../Core/Src/INA229.c:148:6:INA229_Write_SHUNT_CAL	1
+../Core/Src/INA229.c:159:9:INA229_Read_CURRENT	1
+../Core/Src/INA229.c:176:10:INA229_Read_ALERT	1
+../Core/Src/INA229.c:191:6:INA229_Set_Current_Charge_ALRM	1
+../Core/Src/INA229.c:203:6:INA229_Set_Current_Discharge_ALRM	1

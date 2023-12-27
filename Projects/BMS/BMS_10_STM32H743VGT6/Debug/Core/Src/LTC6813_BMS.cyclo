@@ -1,0 +1,5 @@
+../Core/Src/LTC6813_BMS.c:72:6:LTC6813_Init	1
+../Core/Src/LTC6813_BMS.c:92:10:LTC6813_Read_Cell	1
+../Core/Src/LTC6813_BMS.c:105:9:LTC6813_Temp_Read	2
+../Core/Src/LTC6813_BMS.c:129:6:LTC6813_Equalization	1
+../Core/Src/LTC6813_BMS.c:165:9:LTC6813_Chk_Start_Error	6

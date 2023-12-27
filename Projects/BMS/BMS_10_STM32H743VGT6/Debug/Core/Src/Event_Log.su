@@ -1,0 +1,7 @@
+../Core/Src/Event_Log.c:42:6:Set_Clock_and_Date	4	static
+../Core/Src/Event_Log.c:46:6:Read_History_from_Flash	16	static
+../Core/Src/Event_Log.c:50:6:Read_Measured_Param	16	static
+../Core/Src/Event_Log.c:58:6:Read_Clock_and_Date	8	static
+../Core/Src/Event_Log.c:63:7:Alarm_Event_Log	8	static
+../Core/Src/Event_Log.c:67:7:Clear_Flash_Block	16	static
+../Core/Src/Event_Log.c:71:7:Save_History_to_Flash	32	static

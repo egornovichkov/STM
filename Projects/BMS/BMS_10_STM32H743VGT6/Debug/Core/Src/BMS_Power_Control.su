@@ -1,0 +1,16 @@
+../Core/Src/BMS_Power_Control.c:11:6:TURN_OFF_ALL_MOSFETS	8	static
+../Core/Src/BMS_Power_Control.c:21:6:TURN_ON_ALL_MOSFETS	8	static
+../Core/Src/BMS_Power_Control.c:31:6:TURN_ON_CHARGE_MOSFET	8	static
+../Core/Src/BMS_Power_Control.c:38:6:TURN_ON_DISCHARGE_MOSFET	8	static
+../Core/Src/BMS_Power_Control.c:45:6:TURN_OFF_CHARGE_MOSFET	8	static
+../Core/Src/BMS_Power_Control.c:52:6:TURN_OFF_DISCHARGE_MOSFET	8	static
+../Core/Src/BMS_Power_Control.c:59:6:TURN_ON_PRE_CHARGE	8	static
+../Core/Src/BMS_Power_Control.c:63:6:TURN_OFF_PRE_CHARGE	8	static
+../Core/Src/BMS_Power_Control.c:67:6:LED_ALARM_ON	8	static
+../Core/Src/BMS_Power_Control.c:71:6:LED_ALARM_OFF	8	static
+../Core/Src/BMS_Power_Control.c:75:6:LED_OK_ON	8	static
+../Core/Src/BMS_Power_Control.c:79:6:LED_OK_OFF	8	static
+../Core/Src/BMS_Power_Control.c:83:6:LED_DISCHARGE_ON	8	static
+../Core/Src/BMS_Power_Control.c:87:6:LED_DISCHARGE_OFF	8	static
+../Core/Src/BMS_Power_Control.c:91:6:LED_CHARGE_ON	8	static
+../Core/Src/BMS_Power_Control.c:95:6:LED_CHARGE_OFF	8	static

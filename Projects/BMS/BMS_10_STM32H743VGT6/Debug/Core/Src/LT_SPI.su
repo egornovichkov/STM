@@ -1,0 +1,9 @@
+../Core/Src/LT_SPI.c:79:6:spi_transfer_byte	24	static
+../Core/Src/LT_SPI.c:94:6:spi_transfer_word	32	static
+../Core/Src/LT_SPI.c:128:6:spi_transfer_block	32	static
+../Core/Src/LT_SPI.c:144:6:quikeval_SPI_connect	4	static
+../Core/Src/LT_SPI.c:159:6:quikeval_SPI_init	4	static
+../Core/Src/LT_SPI.c:168:6:spi_enable	16	static
+../Core/Src/LT_SPI.c:178:6:spi_disable	4	static
+../Core/Src/LT_SPI.c:184:6:spi_write	24	static
+../Core/Src/LT_SPI.c:204:8:spi_read	32	static

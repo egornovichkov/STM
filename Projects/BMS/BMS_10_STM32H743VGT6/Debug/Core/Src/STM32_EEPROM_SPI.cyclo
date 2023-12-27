@@ -1,0 +1,15 @@
+../Core/Src/STM32_EEPROM_SPI.c:21:6:EEPROM_SPI_INIT	1
+../Core/Src/STM32_EEPROM_SPI.c:38:18:EEPROM_SPI_WritePage	5
+../Core/Src/STM32_EEPROM_SPI.c:89:6:EEPROM_SPI_Write_int32_t	1
+../Core/Src/STM32_EEPROM_SPI.c:100:6:EEPROM_SPI_WriteBuffer_int32_t	2
+../Core/Src/STM32_EEPROM_SPI.c:106:9:EEPROM_SPI_Read_int32_t	1
+../Core/Src/STM32_EEPROM_SPI.c:120:6:EEPROM_SPI_ReadBuffer_int32_t	2
+../Core/Src/STM32_EEPROM_SPI.c:136:18:EEPROM_SPI_WriteBuffer	16
+../Core/Src/STM32_EEPROM_SPI.c:252:18:EEPROM_SPI_ReadBuffer	3
+../Core/Src/STM32_EEPROM_SPI.c:290:9:EEPROM_SendByte	5
+../Core/Src/STM32_EEPROM_SPI.c:321:6:sEE_WriteEnable	1
+../Core/Src/STM32_EEPROM_SPI.c:339:6:sEE_WriteDisable	1
+../Core/Src/STM32_EEPROM_SPI.c:358:6:sEE_WriteStatusRegister	1
+../Core/Src/STM32_EEPROM_SPI.c:388:9:EEPROM_SPI_WaitStandbyState	3
+../Core/Src/STM32_EEPROM_SPI.c:421:6:EEPROM_SPI_SendInstruction	3
+../Core/Src/STM32_EEPROM_SPI.c:431:6:EEPROM_LOAD_DEFAULT	1

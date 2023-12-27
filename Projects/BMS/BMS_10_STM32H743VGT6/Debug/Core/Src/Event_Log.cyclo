@@ -1,0 +1,7 @@
+../Core/Src/Event_Log.c:42:6:Set_Clock_and_Date	1
+../Core/Src/Event_Log.c:46:6:Read_History_from_Flash	1
+../Core/Src/Event_Log.c:50:6:Read_Measured_Param	2
+../Core/Src/Event_Log.c:58:6:Read_Clock_and_Date	1
+../Core/Src/Event_Log.c:63:7:Alarm_Event_Log	1
+../Core/Src/Event_Log.c:67:7:Clear_Flash_Block	1
+../Core/Src/Event_Log.c:71:7:Save_History_to_Flash	2

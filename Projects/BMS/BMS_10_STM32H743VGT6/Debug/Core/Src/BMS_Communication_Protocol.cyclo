@@ -1,0 +1,13 @@
+../Core/Src/BMS_Communication_Protocol.c:88:6:RS485_RX_FRAME	1
+../Core/Src/BMS_Communication_Protocol.c:95:6:RS485_RX_FLAG_STATE	7
+../Core/Src/BMS_Communication_Protocol.c:123:10:Count_Lchksum	1
+../Core/Src/BMS_Communication_Protocol.c:131:10:Count_Chksum	2
+../Core/Src/BMS_Communication_Protocol.c:145:10:Hex_to_ASCII	3
+../Core/Src/BMS_Communication_Protocol.c:170:9:ASCII_to_Hex	5
+../Core/Src/BMS_Communication_Protocol.c:186:6:RS485_Transmit_Remote_Measuring	4
+../Core/Src/BMS_Communication_Protocol.c:275:6:RS485_Transmit_Remote_Signaling	6
+../Core/Src/BMS_Communication_Protocol.c:348:6:RS485_Transmit_Remote_Adjusting	2
+../Core/Src/BMS_Communication_Protocol.c:488:6:RS485_Remote_Set_Command	22
+../Core/Src/BMS_Communication_Protocol.c:614:9:Pack_Number_Jamper_Read	5
+../Core/Src/BMS_Communication_Protocol.c:631:6:RS485_Transmit_Remote_History	3
+../Core/Src/BMS_Communication_Protocol.c:679:6:Alarm_State_Update	16

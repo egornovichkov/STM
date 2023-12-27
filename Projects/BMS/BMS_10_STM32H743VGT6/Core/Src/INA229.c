@@ -1,0 +1,214 @@
+/*
+ * INA229.c
+ *
+ *      Author: TDM
+ */
+#include "INA229.h"
+#include "stdlib.h"
+
+void INA229_Init(void){
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_SET);
+	HAL_Delay(1);
+
+	uint8_t SPI_DATA_SEND[3];
+	uint8_t SPI_DATA_READ[2];
+
+	SPI_DATA_SEND[0] = ADR_CONFIG << 2; // Write to CONFIG register
+	SPI_DATA_SEND[1] = 0;
+	SPI_DATA_SEND[2] = ADCRANGE;
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_RESET);
+	HAL_SPI_Transmit(&INA_SPI_PORT, (uint8_t*) SPI_DATA_SEND, sizeof(SPI_DATA_SEND), HAL_MAX_DELAY);
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_SET);
+	/*****************************************/
+	uint8_t AVG_T = AVG;
+	uint8_t VTCT_T = VTCT;
+	uint8_t VSHCT_T = VSHCT;
+	uint8_t VBUSCT_T = VBUSCT;
+	uint8_t MODE_T = MODE;
+//	uint16_t REG = AVG_T | (VTCT_T<<3) | (VSHCT_T<<6) | (VBUSCT_T<<9) | (MODE_T<<12);
+
+	SPI_DATA_SEND[0] = ADR_ADC_CONFIG << 2; // Write to ADC_CONFIG register
+	SPI_DATA_SEND[1] = VSHCT_T | VBUSCT_T<<3 | MODE_T<<6;
+	SPI_DATA_SEND[2] = AVG_T | VTCT_T<<3 | VSHCT_T<<6;
+
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_RESET);
+	HAL_SPI_Transmit(&INA_SPI_PORT, (uint8_t*)SPI_DATA_SEND, sizeof(SPI_DATA_SEND), HAL_MAX_DELAY);
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_SET);
+
+//********************* Защита по току **********************************
+
+	SPI_DATA_SEND[0] = ADR_DIAG_ALRT << 2; // Write to ADR_DIAG_ALRT register
+	SPI_DATA_SEND[1] = 0x00;
+	SPI_DATA_SEND[2] = 0x00;
+
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_RESET);
+	HAL_SPI_Transmit(&INA_SPI_PORT, (uint8_t*)SPI_DATA_SEND, sizeof(SPI_DATA_SEND), HAL_MAX_DELAY);
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_SET);
+
+//********************* Проверка записи ***********************************
+
+	SPI_DATA_SEND[0] = ADR_CONFIG << 2 | 0x01;
+	SPI_DATA_SEND[1] = 0;
+	SPI_DATA_SEND[2] = 0;
+
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_RESET);
+	HAL_SPI_TransmitReceive(&INA_SPI_PORT, (uint8_t*)SPI_DATA_SEND, (uint8_t*)SPI_DATA_READ, 3, HAL_MAX_DELAY);
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_SET);
+
+	SPI_DATA_SEND[0] = ADR_ADC_CONFIG << 2 | 0x01;
+	SPI_DATA_SEND[1] = 0;
+	SPI_DATA_SEND[2] = 0;
+
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_RESET);
+	HAL_SPI_TransmitReceive(&INA_SPI_PORT, (uint8_t*)SPI_DATA_SEND, (uint8_t*)SPI_DATA_READ, 3, HAL_MAX_DELAY);
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_SET);
+
+	SPI_DATA_SEND[0] = ADR_DIAG_ALRT << 2 | 0x01;
+	SPI_DATA_SEND[1] = 0;
+	SPI_DATA_SEND[2] = 0;
+
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_RESET);
+	HAL_SPI_TransmitReceive(&INA_SPI_PORT, (uint8_t*)SPI_DATA_SEND, (uint8_t*)SPI_DATA_READ, 3, HAL_MAX_DELAY);
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_SET);
+}
+
+uint32_t INA229_Read_VBUS(void){
+	uint8_t SPI_REG_ADDR;
+	uint8_t SPI_DATA_READ[3] = {0,0,0};
+	uint32_t VBUS_CODE;
+	uint32_t BUS_VOLTAGE;
+
+	SPI_REG_ADDR = ADR_VBUS << 2 | 0x01;
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_RESET);
+	HAL_SPI_Transmit(&INA_SPI_PORT, &SPI_REG_ADDR, 1, HAL_MAX_DELAY);
+	HAL_SPI_Receive(&INA_SPI_PORT, (uint8_t*)SPI_DATA_READ, 3, HAL_MAX_DELAY);
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_SET);
+	VBUS_CODE = SPI_DATA_READ[0]<<16 | SPI_DATA_READ[1]<<8 | SPI_DATA_READ[2];
+	VBUS_CODE = VBUS_CODE >> 4;
+	BUS_VOLTAGE	= VBUS_CODE*1953125ULL/1000000; // Conversion factor: 195.3125 μV/LSB
+	return BUS_VOLTAGE;
+}
+
+int32_t INA229_Read_VSHUNT(void){
+	uint8_t SPI_REG_ADDR;
+	uint8_t SPI_DATA_READ[3] = {0,0,0};
+	int32_t VSHUNT_CODE;
+	int32_t VSHUNT_VOLTAGE;
+	uint8_t ADCRANGE_T = ADCRANGE;
+
+	SPI_REG_ADDR = ADR_VSHUNT << 2 | 0x01;
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_RESET);
+	HAL_SPI_Transmit(&INA_SPI_PORT, &SPI_REG_ADDR, 1, HAL_MAX_DELAY);
+	HAL_SPI_Receive(&INA_SPI_PORT, (uint8_t*)SPI_DATA_READ, 3, HAL_MAX_DELAY);
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_SET);
+
+	if (SPI_DATA_READ[0] & 0b10000000){
+//		SPI_DATA_READ[0] = SPI_DATA_READ[0] & 0b01111111;
+		VSHUNT_CODE = 0xFF<<24 | SPI_DATA_READ[0]<<16 | SPI_DATA_READ[1]<<8 | SPI_DATA_READ[2];
+//		VSHUNT_CODE = VSHUNT_CODE >> 4;
+//		VSHUNT_CODE = (VSHUNT_CODE/16);
+		VSHUNT_CODE = -VSHUNT_CODE/16;
+		VSHUNT_CODE *= -1;
+	}
+	else{
+		VSHUNT_CODE = SPI_DATA_READ[0]<<16 | SPI_DATA_READ[1]<<8 | SPI_DATA_READ[2];
+		VSHUNT_CODE = VSHUNT_CODE >> 4;
+	}
+/*
+	 * Conversion factor:
+	 * 312.5 nV/LSB when ADCRANGE = 0
+	 * 78.125 nV/LSB when ADCRANGE = 1
+*/
+	if (ADCRANGE_T == 0){
+		VSHUNT_VOLTAGE = VSHUNT_CODE*3125/10;
+	}
+	else {
+		VSHUNT_VOLTAGE = (VSHUNT_CODE*3125/1000)*25;
+	}
+
+	return VSHUNT_VOLTAGE; // Return VSHUNT_VOLTAGE in nV
+}
+
+uint16_t INA229_Read_DIETEMP(void){
+	uint8_t SPI_REG_ADDR;
+	uint8_t SPI_DATA_READ[2] = {0,0};
+	uint32_t DIETEMP_CODE;
+	uint32_t DIETEMP;
+
+	SPI_REG_ADDR = ADR_DIETEMP << 2 | 0x01;
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_RESET);
+	HAL_SPI_Transmit(&INA_SPI_PORT, &SPI_REG_ADDR, 1, HAL_MAX_DELAY);
+	HAL_SPI_Receive(&INA_SPI_PORT, (uint8_t*)SPI_DATA_READ, 2, HAL_MAX_DELAY);
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_SET);
+	DIETEMP_CODE = SPI_DATA_READ[1]<<8 | SPI_DATA_READ[2];
+	DIETEMP	= DIETEMP_CODE*78125ULL/10000/100; // Conversion factor: 7.8125 m°C/LSB
+	return DIETEMP; // XX.X°C format
+}
+
+void INA229_Write_SHUNT_CAL(uint16_t SHUNT_CAL){
+	uint8_t SPI_DATA_SEND[3];
+
+	SPI_DATA_SEND[0] = ADR_SHUNT_CAL<<2; // Write to SHUNT_CAL register
+	SPI_DATA_SEND[1] = SHUNT_CAL;
+	SPI_DATA_SEND[2] = SHUNT_CAL<<8;
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_RESET);
+	HAL_SPI_Transmit(&INA_SPI_PORT, (uint8_t*) SPI_DATA_SEND, sizeof(SPI_DATA_SEND), HAL_MAX_DELAY);
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_SET);
+}
+
+int32_t INA229_Read_CURRENT(void){
+	uint8_t SPI_REG_ADDR;
+	uint8_t SPI_DATA_READ[3] = {0,0,0};
+	int32_t CURRENT_CODE;
+	int32_t CURRENT;
+
+	SPI_REG_ADDR = ADR_CURRENT << 2 | 0x01;
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_RESET);
+	HAL_SPI_Transmit(&INA_SPI_PORT, &SPI_REG_ADDR, 1, HAL_MAX_DELAY);
+	HAL_SPI_Receive(&INA_SPI_PORT, (uint8_t*)SPI_DATA_READ, sizeof(SPI_DATA_READ), HAL_MAX_DELAY);
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_SET);
+
+	CURRENT_CODE = SPI_DATA_READ[0]<<24 | SPI_DATA_READ[1]<<16 | SPI_DATA_READ[2]<<8;
+	CURRENT	= CURRENT_CODE>>12;
+	return CURRENT;
+}
+
+uint16_t INA229_Read_ALERT(void){
+	uint8_t SPI_REG_ADDR;
+	uint8_t SPI_DATA_READ[2] = {0,0};
+	uint16_t DIAG_ALRT;
+
+	SPI_REG_ADDR = ADR_DIAG_ALRT << 2 | 0x01;
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_RESET);
+	HAL_SPI_Transmit(&INA_SPI_PORT, &SPI_REG_ADDR, 1, HAL_MAX_DELAY);
+	HAL_SPI_Receive(&INA_SPI_PORT, (uint8_t*)SPI_DATA_READ, sizeof(SPI_DATA_READ), HAL_MAX_DELAY);
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_SET);
+
+	DIAG_ALRT = SPI_DATA_READ[0] << 8 | SPI_DATA_READ[1];
+	return DIAG_ALRT;
+}
+
+void INA229_Set_Current_Charge_ALRM(uint16_t Current_Set){
+	uint8_t SPI_DATA_SEND[3] = {0,0,0};
+
+	SPI_DATA_SEND[0] = ADR_SOVL << 2; // Write to ADR_DIAG_ALRT register
+	SPI_DATA_SEND[1] = HIGH_BYTE(Current_Set);
+	SPI_DATA_SEND[2] = LOW_BYTE(Current_Set);
+
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_RESET);
+	HAL_SPI_Transmit(&INA_SPI_PORT, (uint8_t*)SPI_DATA_SEND, sizeof(SPI_DATA_SEND), HAL_MAX_DELAY);
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_SET);
+}
+
+void INA229_Set_Current_Discharge_ALRM(uint16_t Current_Set){
+	uint8_t SPI_DATA_SEND[3] = {0,0,0};
+
+	SPI_DATA_SEND[0] = ADR_SUVL << 2; // Write to ADR_DIAG_ALRT register
+	SPI_DATA_SEND[1] = HIGH_BYTE(Current_Set);
+	SPI_DATA_SEND[2] = LOW_BYTE(Current_Set);
+
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_RESET);
+	HAL_SPI_Transmit(&INA_SPI_PORT, (uint8_t*)SPI_DATA_SEND, sizeof(SPI_DATA_SEND), HAL_MAX_DELAY);
+	HAL_GPIO_WritePin(INA_SPI_CS_Port, INA_SPI_CS_Pin, GPIO_PIN_SET);
+}
+
